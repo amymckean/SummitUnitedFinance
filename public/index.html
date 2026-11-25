@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en" data-org="all"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Org finances</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Barlow+Condensed:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+ :root{--bg:#f4f6f8;--surface:#fff;--text:#16202a;--muted:#5b6570;--border:#dde1e6;--th-bg:#eef1f5;--th-text:#16202a;
+  --accent:#334155;--accent2:#334155;--on-accent:#fff;--link:#1d4ed8;--bad:#b42318;--ok:#067647;--warn:#b54708;
+  --header-bg:#fff;--header-text:#16202a;--font-head:system-ui,sans-serif;--font-body:system-ui,sans-serif;--head-weight:700;--head-spacing:0}
+ *{box-sizing:border-box}
+ body{font:16px/1.5 var(--font-body);margin:0;background:var(--bg);color:var(--text)}
+ header{background:var(--header-bg);color:var(--header-text);border-bottom:4px solid var(--accent)}
+ .brandbar{max-width:1100px;margin:0 auto;padding:18px 16px;display:flex;align-items:center;gap:16px}
+ #logo{height:56px;width:auto;display:block}
+ .bolt{display:none;height:40px;width:40px;fill:var(--accent)} [data-org=voltage] .bolt{display:block}
+ [data-org=voltage] #logo:not([hidden]) ~ .bolt, #logo:not([hidden]) + .bolt{display:none}
+ #brandName{font:var(--head-weight) 30px/1.1 var(--font-head);letter-spacing:var(--head-spacing);margin:0;text-transform:none}
+ [data-org=voltage] #brandName{font-size:38px;color:var(--accent)}
+ #brandTag{color:var(--muted);margin:2px 0 0;font-size:15px}
+ main{max-width:1100px;margin:0 auto;padding:20px 16px 48px}
+ h2{font:var(--head-weight) 24px/1.2 var(--font-head);letter-spacing:var(--head-spacing);margin:32px 0 8px;padding-bottom:4px;border-bottom:2px solid var(--accent2)}
+ [data-org=voltage] h2{font-size:28px;color:var(--accent)}
+ form,.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px}
+ label{display:inline-block;margin:0 16px 8px 0;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+ input,select{font:inherit;padding:6px 8px;margin-top:2px;display:block;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;color-scheme:light dark}
+ [data-org=voltage] input,[data-org=voltage] select{color-scheme:dark}
+ button{font:inherit;font-weight:700;padding:9px 20px;border:0;border-radius:8px;background:var(--accent);color:var(--on-accent);cursor:pointer;letter-spacing:.02em}
+ button:disabled{opacity:.6;cursor:wait}
+ form#f,.filters{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 16px}
+ form#f label,.filters label{margin:0;display:flex;flex-direction:column;gap:4px}
+ .filters{align-items:flex-end}
+ form#f input,form#f select,form#f button,.filters select,.filters input{height:40px;margin:0;font-size:15px;padding:0 12px;border-radius:8px;min-width:0}
+ form#f input,form#f select,.filters input,.filters select{min-width:150px}
+ form#f button{padding:0 24px}
+ form#f input,form#f button,.filters input{box-sizing:border-box;line-height:38px;display:block}
+ form#f select,.filters select{box-sizing:border-box;line-height:normal;display:block}
+ input[type=date]{display:flex;align-items:center}
+ input[type=date]::-webkit-datetime-edit,input[type=date]::-webkit-date-and-time-value{line-height:38px;padding:0;margin:0;min-height:0;display:flex;align-items:center;text-align:left}
+ input[type=date]::-webkit-datetime-edit-fields-wrapper{padding:0;display:flex;align-items:center}
+ select{line-height:normal;padding-top:0;padding-bottom:0}
+ .tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px}
+ table{border-collapse:collapse;width:100%;background:var(--surface)}
+ th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+ th{background:var(--th-bg);color:var(--th-text);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+ .bad{color:var(--bad);font-weight:700} .ok{color:var(--ok)} .warn{color:var(--warn);font-weight:700}
+ .banner{background:var(--surface);border:1px solid var(--warn);border-left-width:6px;padding:10px 14px;border-radius:8px;margin-bottom:12px}
+ .err{background:var(--surface);border:1px solid var(--bad);border-left-width:6px;padding:10px 14px;border-radius:8px;margin-bottom:12px;color:var(--bad)}
+ .dl{font-family:var(--font-body);font-size:14px;margin-left:10px;font-weight:400;cursor:pointer;color:var(--link);text-decoration:underline;letter-spacing:0}
+ th.sortable{cursor:pointer;user-select:none} th.sortable:hover{text-decoration:underline}
+ th[data-dir=asc]::after{content:" \25B2";font-size:10px} th[data-dir=desc]::after{content:" \25BC";font-size:10px}
+ tr.detail{display:none} tr.open + tr.detail{display:table-row} tr[style*="none"] + tr.detail{display:none!important}
+ tr.detail > td{background:var(--bg);white-space:normal} tr.detail table{width:auto;min-width:560px;margin:6px 0 12px} a.tog{cursor:pointer;text-decoration:none;font-weight:600}
+ tr.open > td:first-child a.tog::before{content:"\25BC  "} tr:not(.open) > td:first-child a.tog::before{content:"\25B6  ";font-size:11px}
+ details table{margin:6px 0 10px;font-size:13px} summary{cursor:pointer;color:var(--link)}
+ #tabs{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px;border-bottom:2px solid var(--accent2)}
+ #tabs a{padding:9px 16px;text-decoration:none;color:var(--text);font-weight:600;border-radius:8px 8px 0 0}
+ #tabs a.on{background:var(--accent);color:var(--on-accent)} .pane[hidden]{display:none}
+ input.bud{width:110px;min-width:0!important;height:32px!important;text-align:right;padding:0 8px!important;font-size:14px!important;display:inline-block!important}
+ input.bud.mod{border-color:var(--warn);background:var(--surface);font-weight:700}
+ tfoot tr.tot td{font-weight:700;border-top:2px solid var(--accent2);background:var(--th-bg)}
+ .note{color:var(--muted);font-size:14px;margin:6px 0 0}
+ @media print{
+  body,header,form,.tablewrap,table,td,th,.banner{background:#fff!important;color:#000!important}
+  th{background:#eee!important;color:#000!important} h2,#brandName{color:#000!important}
+  form,.dl,#tabs{display:none} .pane[hidden]{display:block} .tablewrap{border-color:#bbb} td,th{border-color:#ccc!important}
+ }
+</style></head><body>
+<header><div class="brandbar">
+ <img id="logo" alt="" hidden>
+ <svg class="bolt" viewBox="0 0 24 24" aria-hidden="true"><polygon points="14,1 4,14 11,14 9,23 20,9 13,9"/></svg>
+ <div><h1 id="brandName">Org finances</h1><p id="brandTag">Finance reports</p></div>
+</div></header>
+<main>
+<form id="f">
+ <label>Start<input type="date" id="start" required></label>
+ <label>End<input type="date" id="end" required></label>
+ <label>Org<select id="org"><option>all</option><option>summit</option><option>voltage</option></select></label>
+ <button id="go" type="submit">Run reports</button>
+</form>
+<div id="out"></div>
+<script src="brand.js"></script>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (x) => String(x ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const m = (x) => Number(x).toFixed(2);
+const money = (x) => Number(x).toLocaleString("en-US", { style: "currency", currency: "USD" });
+const lcls = (s) => s === "Behind" ? "bad" : (s === "Paid in full" ? "ok" : "ok");
+const cls = (s) => s === "Past due" ? "bad" : (["Invoice open","Paused"].includes(s) ? "warn" : (s === "Current" ? "ok" : ""));
+
+let LAST = null; const OV = new Map(); let ITEMS = [], ITEM_ID = 0, LAST_CATS = []; // what-if budget edits (OV) and what-if expense line items (ITEMS) made on this page (never saved)
+const bkey = (org, cat) => org + "\u0000" + cat;
+function withOverrides(r) {
+  if (!OV.size && !ITEMS.length) return r;
+  const xp = new Map(), extra = new Map();
+  for (const it of ITEMS) xp.set(bkey(it.org, it.category), (xp.get(bkey(it.org, it.category)) || 0) + it.amount);
+  const known = new Set(r.budget.map((b0) => bkey(b0.org, b0.category)));
+  const rows = [...r.budget, ...[...xp.keys()].filter((k) => !known.has(k)).map((k) => { const [org, category] = k.split("\u0000"); return { org, category, budget: null, actual: 0, left: null, pct: null }; })];
+  const budget = rows.map((b0) => {
+    const o = OV.get(bkey(b0.org, b0.category)), x = xp.get(bkey(b0.org, b0.category)) || 0;
+    if (o === undefined && !x) return b0;
+    const bud = o === undefined ? b0.budget : o, actual = b0.actual + x;
+    if (x) extra.set(b0.org, (extra.get(b0.org) || 0) + x);
+    return { ...b0, budget: bud, actual, whatif: x, left: bud === null ? null : bud - actual, pct: bud ? (actual / bud) * 100 : null };
+  });
+  const board = r.board.map((o) => (extra.has(o.org) ? { ...o, expenses: o.expenses + extra.get(o.org), result: o.result - extra.get(o.org) } : o));
+  return { ...r, budget, board };
+}
+function whatIfPanel(r) {
+  const cats = r.budget.filter((b) => !b.whatif || true).map((b) => b.org + "\u0000" + b.category);
+  const uniq = [...new Set(cats)]; LAST_CATS = uniq;
+  const list = ITEMS.length ? `<table style="margin-top:10px"><tr><th>Org</th><th>Category</th><th>Item</th><th class="n">Amount</th><th></th></tr>${ITEMS.map((it) => `<tr><td>${esc(it.org)}</td><td>${esc(it.category)}</td><td>${esc(it.desc)}</td><td class="n">${m(it.amount)}</td><td><a href="#forecast" class="tog rmItem" data-id="${it.id}">remove</a></td></tr>`).join("")}<tr class="tot"><td colspan="3">Total what-if spending</td><td class="n">${m(ITEMS.reduce((t, x) => t + x.amount, 0))}</td><td></td></tr></table>` : "";
+  return `<h2>What if I spend...</h2><div class="card"><div class="filters">
+    <label>Category<select id="wiCat">${uniq.map((k, i) => { const [o, c] = k.split("\u0000"); return `<option value="${i}">${esc(o)} - ${esc(c)}</option>`; }).join("")}<option value="__new">New category...</option></select></label>
+    <label id="wiNewWrap" hidden>Org<select id="wiNewOrg">${[...new Set(r.budget.map((b) => b.org))].map((o) => `<option>${esc(o)}</option>`).join("")}</select> Name<input id="wiNewCat" type="text" placeholder="Category name"></label>
+    <label>Item<input id="wiDesc" type="text" placeholder="e.g. New pitching machine"></label>
+    <label>Amount<input id="wiAmt" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" style="width:130px"></label>
+    <button id="wiAdd" type="button">Add</button></div>${list}
+    <p class="note">Add as many line items as you like. Each one adds to its category's Spent, so Left, % used, the forecast and the revenue projection all update. Nothing is saved; reloading clears them.</p></div>`;
+}
+function makeSortable(root){
+ const key=(c)=>{const s=c.querySelector("summary"),inp=c.querySelector("input");let t=(inp?inp.value:(s?s.textContent:c.textContent)).trim();
+  if(/^\d{4}-\d{2}-\d{2}/.test(t)||/^(Due by|Grace until) /.test(t))return[1,t];
+  const n=parseFloat(t.replace(/[$,]/g,""));return/^[$-]?[\d,]*\.?\d/.test(t)&&!isNaN(n)?[0,n]:[1,t.toLowerCase()]};
+ root.querySelectorAll("table").forEach((tb)=>{
+  if(tb.closest("details")||!tb.rows.length||!tb.rows[0].querySelector("th"))return;
+  tb.rows[0].querySelectorAll("th").forEach((th,i)=>{
+   th.classList.add("sortable");
+   th.addEventListener("click",()=>{
+    const dir=th.dataset.dir==="asc"?"desc":"asc";
+    tb.querySelectorAll("th").forEach((h)=>{delete h.dataset.dir});th.dataset.dir=dir;
+    const body=tb.tBodies[0],groups=[];
+    [...tb.tBodies[0].rows].slice(1).forEach((r)=>{r.classList.contains("detail")?groups[groups.length-1].push(r):groups.push([r])});
+    groups.sort((a,b)=>{const x=key(a[0].cells[i]),y=key(b[0].cells[i]);
+     const r=x[0]!==y[0]?x[0]-y[0]:(x[1]<y[1]?-1:x[1]>y[1]?1:0);return dir==="asc"?r:-r});
+    groups.forEach((g)=>g.forEach((r)=>body.appendChild(r)));
+    applyCaps();
+   });
+  });
+ });
+}
+
+function applyBrand(key) {
+  const k = BRANDS[key] ? key : "all";
+  const b = BRANDS[k], root = document.documentElement;
+  root.dataset.org = k;
+  for (const [name, val] of Object.entries(b.vars)) root.style.setProperty("--" + name, val);
+  $("#brandName").textContent = b.name;
+  $("#brandTag").textContent = b.tagline;
+  document.title = b.title;
+  const logo = $("#logo");
+  logo.onerror = () => { logo.hidden = true; };
+  if (b.logo) { logo.src = b.logo; logo.hidden = false; } else { logo.hidden = true; logo.removeAttribute("src"); }
+}
+
+const today = new Date(); const iso = (d) => d.toISOString().slice(0, 10);
+$("#start").value = "2026-06-01"; // whole season by default
+$("#end").value = "2027-07-31";
+const wanted = new URLSearchParams(location.search).get("org");
+if (wanted && BRANDS[wanted]) $("#org").value = wanted;
+applyBrand($("#org").value);
+$("#org").addEventListener("change", () => { applyBrand($("#org").value); $("#f").requestSubmit(); });
+$("#start").addEventListener("change", () => $("#f").requestSubmit());
+$("#end").addEventListener("change", () => $("#f").requestSubmit());
+
+function csvHref(headers, rows) {
+  const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const text = [headers, ...rows].map((r) => r.map(q).join(",")).join("\n");
+  return URL.createObjectURL(new Blob([text], { type: "text/csv" }));
+}
+function dl(name, headers, rows) {
+  return `<a class="dl" download="${name}" href="${csvHref(headers, rows)}">Download CSV</a>`;
+}
+function playerDl(x) {
+  const lines = [["Player", x.player, "", "", ""], ["Org / team", `${x.org} / ${x.team}`, "", "", ""], ["Parent", x.payer, "", "", ""],
+    ["Status", x.status, "", "", x.note], ["Plan total", "", "", m(x.plan_total), ""], ["Paid", "", "", m(x.paid), ""], ["Remaining", "", "", m(x.remaining), ""],
+    ...x.schedule.map((y) => ["Schedule", y.item, y.due, m(y.amount), y.status]),
+    ...x.history.map((h) => ["Payment", h.id, h.date, m(h.gross), h.kind + (h.refunded ? ` (refunded ${m(h.refunded)})` : "")])];
+  return `<a class="dl" download="${esc(x.player.replace(/\s+/g, "_"))}.csv" href="${csvHref(["Section","Item","Date","Amount","Status / counts as"], lines)}">Download this player (CSV)</a>`;
+}
+let CAPN = 0; const EXPANDED = new Set(); // long tables show their first rows, with a link to see them all
+function table(head, rows, foot, cap) {
+  const cid = cap ? CAPN++ : -1;
+  return `<div class="tablewrap"><table${cap ? ` data-cap="${cap}" data-cid="${cid}"` : ""}><tr>${head.map(([h, n]) => `<th class="${n ? "n" : ""}">${h}</th>`).join("")}</tr>${rows.join("")}${foot && foot.length ? `<tfoot>${foot.join("")}</tfoot>` : ""}</table></div>`
+    + (cap && rows.length > cap ? `<p class="morebar"><a href="#" class="tog showmore" data-cid="${cid}"></a></p>` : "");
+}
+function applyCaps() {
+  document.querySelectorAll("table[data-cap]").forEach((tb) => {
+    const n = Number(tb.dataset.cap), open = EXPANDED.has(tb.dataset.cid), rows = [...tb.tBodies[0].rows].slice(1);
+    rows.forEach((r, i) => { r.hidden = !open && i >= n; });
+    const link = document.querySelector(`.showmore[data-cid="${tb.dataset.cid}"]`);
+    if (link) link.textContent = open ? `Show only the first ${n}` : `Show all ${rows.length}`;
+  });
+}
+const tsum = (arr, f) => arr.reduce((t, x) => t + (Number(f(x)) || 0), 0);
+// a totals row: numbers become right-aligned money cells, strings stay text
+const trow = (cells) => `<tr class="tot">${cells.map((c) => (typeof c === "number" ? `<td class="n">${m(c)}</td>` : c && c.cnt !== undefined ? `<td class="n">${c.cnt}</td>` : `<td>${c}</td>`)).join("")}</tr>`;
+
+// Budget vs actual rows. editable = budget boxes you can type in (Forecast tab); otherwise plain numbers.
+function budgetTable(r, editable) {
+  const orgs = [...new Set(r.budget.map((b) => b.org))];
+  const rows = r.budget.map((b) => `<tr><td>${esc(b.org)}</td><td>${esc(b.category)}</td><td class="n">${editable
+    ? `<input class="bud${OV.has(bkey(b.org, b.category)) ? " mod" : ""}" type="number" min="0" step="0.01" data-k="b" data-o="${esc(b.org)}" data-c="${esc(b.category)}" value="${b.budget === null ? "" : b.budget}" placeholder="none" title="Type a different budget to see the effect. Not saved.">`
+    : b.budget === null ? "no budget" : m(b.budget)}</td><td class="n">${m(b.actual)}</td><td class="n ${b.left !== null && b.left < 0 ? "bad" : ""}">${b.left === null ? "" : m(b.left)}</td><td class="n">${b.pct === null ? "" : b.pct.toFixed(0) + "%"}</td>${editable ? `<td class="n">${b.whatif ? m(b.whatif) : ""}</td>` : ""}</tr>`);
+  const tot = (label, list) => { const bud = tsum(list, (b) => b.budget), act = tsum(list, (b) => b.actual);
+    return `<tr class="tot"><td>${label}</td><td></td><td class="n">${m(bud)}</td><td class="n">${m(act)}</td><td class="n ${bud - act < 0 ? "bad" : ""}">${m(bud - act)}</td><td class="n">${bud ? ((act / bud) * 100).toFixed(0) + "%" : ""}</td>${editable ? `<td class="n">${tsum(list, (b) => b.whatif) ? m(tsum(list, (b) => b.whatif)) : ""}</td>` : ""}</tr>`; };
+  const foot = orgs.map((o) => tot(esc(o) + " total", r.budget.filter((b) => b.org === o)));
+  if (orgs.length > 1) foot.push(tot("All orgs", r.budget));
+  return table([["Org"], ["Category"], ["Season budget", 1], ["Spent (these dates)", 1], ["Left", 1], ["% used", 1], ...(editable ? [["What-if added", 1]] : [])], rows, foot);
+}
+
+
+// ---- Revenue projection to a chosen date: what is collected, plus what is scheduled to arrive by then ----
+let PROJ_DATE = "";
+function projection(r, date) {
+  const key = (o, p) => o + "|" + String(p).trim().toLowerCase();
+  const subbed = new Set((r.status || []).filter((x) => x.status !== "Canceled").map((x) => key(x.org, x.player)));
+  const orgs = [...new Set(r.ledger.map((x) => x.org))].sort();
+  return orgs.map((org) => {
+    const b = r.board.find((x) => x.org === org) || { gross: 0, fees: 0, net_income: 0, pending: 0 };
+    const rate = b.gross > 0 ? b.fees / b.gross : 0;
+    let sub = 0, other = 0, late = 0, nSub = 0, nOther = 0;
+    const subPlayers = new Set(), otherPlayers = new Set();
+    for (const x of r.ledger.filter((y) => y.org === org)) {
+      const isSub = subbed.has(key(x.org, x.player));
+      for (const it of x.schedule || []) {
+        if (it.status === "Paid") continue;
+        const amt = Number(it.amount);
+        if (it.status === "Overdue" || it.status === "MISSING") { if (!it.due || it.due <= date) late += amt; continue; }
+        if (!it.due || it.due > date) continue;
+        if (isSub) { sub += amt; nSub++; subPlayers.add(x.player); } else { other += amt; nOther++; otherPlayers.add(x.player); }
+      }
+    }
+    const net = (g) => g * (1 - rate);
+    return { org, spent: b.expenses || 0, collected: b.net_income, sub: net(sub), other: net(other), late: net(late), nSub, nOther, pSub: subPlayers.size, pOther: otherPlayers.size, rate,
+      sure: b.net_income + net(sub), likely: b.net_income + net(sub) + net(other), best: b.net_income + net(sub) + net(other) + net(late) };
+  });
+}
+function projectionHtml(r) {
+  const date = PROJ_DATE || (r.range && r.range.end) || r.as_of;
+  const rows = projection(r, date), all = (f) => rows.reduce((t, x) => t + f(x), 0);
+  const tr = (label, f, bold) => `<tr><td>${bold ? `<b>${label}</b>` : label}</td>${rows.map((x) => `<td class="n">${bold ? `<b>${m(f(x))}</b>` : m(f(x))}</td>`).join("")}<td class="n">${bold ? `<b>${m(all(f))}</b>` : m(all(f))}</td></tr>`;
+  return `<h2>Revenue projection</h2><div class="card"><label>Project revenue through <input type="date" id="projDate" value="${esc(date)}" style="width:auto;height:40px;margin-left:6px"></label>
+    <table style="margin-top:12px"><tr><th></th>${rows.map((x) => `<th class="n">${esc(x.org)}</th>`).join("")}<th class="n">Total</th></tr>
+    ${tr("Collected so far (net of fees, includes pending)", (x) => x.collected)}
+    ${tr("+ Monthly payments already on a subscription", (x) => x.sub)}
+    ${tr("Projected: collected + subscriptions", (x) => x.sure, true)}
+    ${tr("+ Installments from players not on a subscription", (x) => x.other)}
+    ${tr("Projected: if everyone pays on schedule", (x) => x.likely, true)}
+    ${tr("+ Past-due amounts, if they are collected", (x) => x.late)}
+    ${tr("Projected: best case", (x) => x.best, true)}
+    <tr><td colspan="${rows.length + 2}" style="padding-top:14px"><b>After expenses so far</b></td></tr>
+    ${tr("Expenses so far (these dates, plus any what-if)", (x) => x.spent)}
+    ${tr("Left after expenses: collected + subscriptions", (x) => x.sure - x.spent, true)}
+    ${tr("Left after expenses: if everyone pays on schedule", (x) => x.likely - x.spent, true)}
+    ${tr("Left after expenses: best case", (x) => x.best - x.spent, true)}</table>
+    <p class="note">Net of Stripe fees at each org's rate so far. Each row adds installments that fall due on or before the date you pick, taken from the player schedules (${rows.map((x) => `${esc(x.org)}: ${x.pSub} on subscriptions, ${x.pOther} not`).join("; ")}). The middle line is the one to rely on if families keep paying as they have; the last line assumes every late balance is paid. Waived players add nothing. Expenses are what has been paid so far in the dates you ran the report for (shared costs split 66/34); future spending isn't projected here, see the Season forecast below.</p></div>`;
+}
+
+function render(r) {
+  CAPN = 0;
+  LAST = r; r = withOverrides(r);
+  const T = { overview: [], players: [], income: [], tx: [], money: [], forecast: [] }; const shared = []; let cur = null;
+  const P = (h) => (cur ? T[cur] : shared).push(h);
+  if (r.demo) P(`<div class="banner">Demo data. Not your real numbers.</div>`);
+  if (r.range) P(`<p class="note" id="rangeNote"><b>Showing ${esc(r.range.start)} to ${esc(r.range.end)}</b> &middot; org: ${esc(r.range.org)} &middot; ${r.transactions.length} payments, ${r.expense_count} expense lines in these dates &middot; pulled ${esc(new Date(r.generated).toLocaleTimeString())}</p>`);
+  if (r.unassigned) P(`<div class="banner"><b>${r.unassigned}</b> Stripe payment(s) or subscription(s) are missing org/team/player metadata and show as UNASSIGNED.</div>`);
+  if (OV.size || ITEMS.length) P(`<div class="banner"><b>What-if numbers:</b> ${OV.size} budget(s) changed and ${ITEMS.length} expense item(s) added on this page. They are not saved. <a class="tog" id="budreset2" href="#forecast">Reset</a></div>`);
+  if (r.sub_lookup === "unavailable") P(`<div class="banner">Couldn't read Stripe invoices, so payments are not borrowing their subscription's tags. Give the Stripe key read access to Invoices.</div>`);
+  else if (r.tagged_via_subscription) P(`<div class="banner"><b>${r.tagged_via_subscription}</b> payment(s) had no tags of their own and are using their subscription's tags.</div>`);
+  if (!r.sheet_configured) P(`<div class="banner">No expense sheet is connected, so expenses are not shown.</div>`);
+
+
+  const counts = { "Behind": 0, "Up to date": 0, "Paid in full": 0, "Free": 0 };
+  r.ledger.forEach((x) => counts[x.status]++);
+  const skip = r.ledger_skipped.length ? `<div class="banner">Payments left out of the ledger because org or player tags are missing: ${r.ledger_skipped.map((k) => `${esc(k.org)}/${esc(k.player)}: ${k.count} payment(s), $${m(k.gross)}`).join("; ")}</div>` : "";
+  cur = 'players'; P(`<h2>Player ledger ${dl("player_ledger.csv", ["Org","Team","Player","Status","Paid","Plan total","Remaining","Down payment","Installments paid","Installments overdue","Owed now","Last paid","This month"], r.ledger.map((x) => [x.org,x.team,x.player,x.status,m(x.paid),x.plan_total,m(x.remaining),x.free || x.no_down ? "n/a" : x.down_ok ? "yes" : "MISSING",x.free ? "" : x.inst,x.free ? "" : Math.max(0, x.due_now - x.inst),m(x.owed_now),x.last,x.this_month]))}</h2>`
+    + skip
+    + `<div class="card filters"><label>Find player<input id="lq" placeholder="type a name"></label>
+       <label>Team<select id="lt"><option value="">all</option>${[...new Set(r.ledger.map((x) => x.org + " / " + x.team))].sort().map((g) => `<option>${esc(g)}</option>`).join("")}</select></label>
+       <label>Status<select id="ls"><option value="">all</option><option>Behind</option><option>Up to date</option><option>Paid in full</option><option>Free</option></select></label>
+       <span class="note" style="margin:0 0 8px;color:var(--text)"><b>${counts["Behind"]}</b> behind &middot; <b>${counts["Up to date"]}</b> up to date &middot; <b>${counts["Paid in full"]}</b> paid in full &middot; <b>${counts["Free"]}</b> free (as of ${esc(r.as_of)})</span></div>`
+    + table([["Player"],["Org / team"],["Status"],["Paid",1],["Plan",1],["Remaining",1],["Down"],["Installments",1],["Owed now",1],["Last paid"],["This month"]],
+      r.ledger.map((x) => `<tr class="lrow" data-n="${esc(x.player.toLowerCase())}" data-s="${esc(x.status)}" data-g="${esc(x.org + " / " + x.team)}"><td><a class="tog" href="#" onclick="this.closest('tr').classList.toggle('open');return false">${esc(x.player)}</a></td>`
+        + `<td>${esc(x.org)} / ${esc(x.team)}</td><td class="${lcls(x.status)}">${esc(x.status)}${x.note ? ` <span class="note">${esc(x.note)}</span>` : ""}</td>`
+        + `<td class="n">${m(x.paid)}</td><td class="n">${x.plan_total}</td><td class="n">${m(x.remaining)}</td><td class="${x.down_ok ? "" : "bad"}">${x.free || x.no_down ? "n/a" : x.down_ok ? "Yes" : "MISSING"}</td>`
+        + `<td class="n">${x.free ? "n/a" : `${x.inst} of ${x.inst_total}`}</td><td class="n ${x.owed_now > 0 ? "bad" : ""}">${x.owed_now > 0 ? m(x.owed_now) : ""}</td><td>${esc(x.last)}</td><td>${esc(x.this_month)}</td></tr>`
+        + `<tr class="detail"><td colspan="11"><div class="card" style="margin:8px 0"><b>${esc(x.player)}</b> &middot; ${esc(x.org)} / ${esc(x.team)}${x.payer ? ` &middot; parent: ${esc(x.payer)}` : ""}${x.note ? ` &middot; <i>${esc(x.note)}</i>` : ""} `
+        + playerDl(x)
+        + `<p class="note">Plan ${m(x.plan_total)} &middot; paid ${m(x.paid)} &middot; remaining ${m(x.remaining)} &middot; status ${esc(x.status)}</p>`
+        + (x.schedule.length ? `<b>Payment schedule</b><table><tr><th>Item</th><th>Due by</th><th class="n">Amount</th><th>Status</th></tr>`
+          + x.schedule.map((y) => `<tr><td>${esc(y.item)}</td><td>${esc(y.due)}</td><td class="n">${m(y.amount)}</td><td class="${["Overdue","MISSING"].includes(y.status) ? "bad" : y.status === "Paid" ? "ok" : ""}">${esc(y.status)}</td></tr>`).join("") + `</table>` : "")
+        + `<b>Payments received</b><table><tr><th>Date</th><th class="n">Amount</th><th>Counts as</th><th class="n">Refunded</th><th>ID</th></tr>`
+        + (x.history.map((h) => `<tr><td>${esc(h.date)}</td><td class="n">${m(h.gross)}</td><td>${esc(h.kind)}</td><td class="n">${h.refunded ? m(h.refunded) : ""}</td><td>${esc(h.id)}</td></tr>`).join("") || `<tr><td colspan="5">No payments yet</td></tr>`)
+        + `</table></div></td></tr>`), [trow(["All players", "", "", tsum(r.ledger, (x) => x.paid), tsum(r.ledger, (x) => x.plan_total), tsum(r.ledger, (x) => x.remaining), "", "", tsum(r.ledger, (x) => x.owed_now), "", ""])])
+    + `<p class="note">Counted by payment amount: the down payment, then one installment per payment at the plan amount (Voltage accepts the bank or card amount). Refunded payments don't count. Other amounts add to Paid but not to installments. Each installment is due by the end of its month, with a half-month grace period before a player counts as Behind. Plans live in lib/fees.mjs.</p>`);
+
+  cur = 'overview';
+  if (r.bank_balance) P(`<div class="card"><div style="display:flex;flex-wrap:wrap;gap:6px 28px;align-items:baseline"><div><div class="muted">BECU balance</div><div style="font-size:30px;font-weight:700">${money(r.bank_balance.amount)}</div></div><div class="muted">As of ${esc(r.bank_balance.date)}, the latest row on your Expenses tab. This is the cash actually in the bank. Stripe income only counts here once Stripe pays it out, so the Board summary below can be ahead of it.</div></div>`
+    + (r.bank_by_org ? `<table style="margin-top:12px"><tr><th>Org</th><th class="n">Stripe payouts (est.)</th><th class="n">Checks / other deposits</th><th class="n">Total in</th><th class="n">Spent</th><th class="n">In the bank</th></tr>`
+      + r.bank_by_org.map((x) => `<tr><td>${esc(x.org)}${x.gap ? " <span class=\"muted\">(can't be assigned)</span>" : ""}</td><td class="n">${m(x.stripe_in)}</td><td class="n">${m(x.other_in)}</td><td class="n"><b>${m(x.stripe_in + x.other_in)}</b></td><td class="n">${m(x.spent)}</td><td class="n ${x.balance < 0 ? "bad" : ""}"><b>${money(x.balance)}</b></td></tr>`).join("")
+      + (r.bank_by_org.length > 1 ? `<tr class="tot"><td>Total</td><td class="n">${m(tsum(r.bank_by_org, (x) => x.stripe_in))}</td><td class="n">${m(tsum(r.bank_by_org, (x) => x.other_in))}</td><td class="n">${m(tsum(r.bank_by_org, (x) => x.stripe_in + x.other_in))}</td><td class="n">${m(tsum(r.bank_by_org, (x) => x.spent))}</td><td class="n">${money(tsum(r.bank_by_org, (x) => x.balance))}</td></tr>` : "")
+      + `</table>` + (() => { const settled = tsum(r.board, (b) => b.net_income - (b.pending || 0)), inBecu = tsum(r.bank_by_org, (x) => x.stripe_in + x.other_in), sb = r.stripe_balance;
+        return `<p class="note"><b>Not yet in BECU:</b> ${m(settled - inBecu)} (settled net income of ${m(settled)} minus ${m(inBecu)} deposited; ${m(tsum(r.board, (b) => b.pending || 0))} more is pending ACH). ${sb ? `Stripe says it is holding <b>${m(sb.available + sb.pending)}</b> right now (${m(sb.available)} available to pay out, ${m(sb.pending)} on the way). The two should be close; a small difference is Stripe fees on pending payments and timing.` : "Turn on Balance: read for the Stripe key to compare this with what Stripe is holding."} This compares the dates you picked, so use the whole season for a clean match.</p>`; })()
+      + `<p class="note">Total in is Stripe payouts plus checks and other deposits. Each org's share is what it has taken in minus what it has spent, over everything on the Expenses tab. Stripe pays out in lump sums that don't say which org they belong to, so they are split by each org's net Stripe income; that is an estimate. Checks recorded in fees.mjs and tagged deposits go to their org, and shared costs are split 66/34. A negative amount means that org has spent more than it has brought in, so the other org's cash is covering it.</p>` : "")
+    + `</div>`);
+  P(`<h2>Board summary</h2>` + table(
+    [["Org"],["Gross income",1],["Stripe fees",1],["Refunds",1],["Net income",1],["Expenses",1],["Net after expenses",1],["Players",1],["Behind",1],["Owed now",1]],
+    r.board.map((b) => { const L = r.ledger.filter((x) => x.org === b.org), beh = L.filter((x) => x.status === "Behind"); return `<tr><td>${esc(b.org)}</td><td class="n">${m(b.gross)}</td><td class="n">${m(b.fees)}</td><td class="n">${m(b.refunds)}</td><td class="n">${m(b.net_income)}${b.pending ? `<div class="muted" style="font-size:12px">incl. ${m(b.pending)} pending</div>` : ""}</td><td class="n">${m(b.expenses)}</td><td class="n"><b>${m(b.result)}</b></td><td class="n">${L.length}</td><td class="n ${beh.length ? "bad" : ""}">${beh.length}</td><td class="n ${beh.length ? "bad" : ""}">${m(beh.reduce((t, x) => t + x.owed_now, 0))}</td></tr>`; }))
+    + `<p class="note">Cash basis for the selected dates; bank payments still clearing are counted as income and marked pending (their Stripe fee shows once they settle). Expenses include only sheet rows tagged to an org by a rule; Stripe payouts are excluded as transfers. Behind and Owed now come from the player ledger: a player is behind only when a month has ended, the grace period has passed and the payment is still missing.</p>`);
+
+  cur = 'income'; P(`<h2>Income by team ${dl("income_by_team.csv", ["Org","Team","Payments","Gross","Fees","Refunds","Net"], r.teams.map((t) => [t.org,t.team,t.payments,m(t.gross),m(t.fees),m(t.refunds),m(t.net)]))}</h2>` + table(
+    [["Org"],["Team"],["Payments",1],["Gross",1],["Fees",1],["Refunds",1],["Net",1]],
+    r.teams.map((t) => `<tr><td>${esc(t.org)}</td><td>${esc(t.team)}</td><td class="n">${t.payments}</td><td class="n">${m(t.gross)}</td><td class="n">${m(t.fees)}</td><td class="n">${m(t.refunds)}</td><td class="n">${m(t.net)}</td></tr>`), [trow(["All", "", { cnt: tsum(r.teams, (t) => t.payments) }, tsum(r.teams, (t) => t.gross), tsum(r.teams, (t) => t.fees), tsum(r.teams, (t) => t.refunds), tsum(r.teams, (t) => t.net)])]));
+
+  cur = 'income'; if (r.giving && r.giving.length) {
+    const net = (c) => c.gross - c.fee - c.refunded;
+    P(`<h2>Donations and sponsorships ${dl("donations_and_sponsorships.csv", ["Date","Org","Type","Name","Detail","Gross","Fee","Net"], r.giving.map((c) => [c.date,c.org,c.kind,c.player,c.payer,m(c.gross),m(c.fee),m(net(c))]))}</h2>` + table(
+      [["Date"],["Org"],["Type"],["Name"],["From / in honor of"],["Gross",1],["Fee",1],["Net",1]],
+      r.giving.map((c) => `<tr><td>${esc(c.date)}</td><td>${esc(c.org)}</td><td>${esc(c.kind)}${c.pending ? ' <span class="muted">(pending)</span>' : ""}</td><td>${esc(c.player)}</td><td>${esc(c.payer)}</td><td class="n">${m(c.gross)}</td><td class="n">${m(c.fee)}</td><td class="n">${m(net(c))}</td></tr>`),
+      [trow(["Total", "", "", "", "", tsum(r.giving, (c) => c.gross), tsum(r.giving, (c) => c.fee), tsum(r.giving, net)])], 10)
+      + `<p class="note">Given through the website, outside the player fees below. Counted in the Board summary's income, but not in Income by team or player.</p>`);
+  }
+  cur = 'income'; P(`<h2>Income by player ${dl("income_by_player.csv", ["Org","Team","Player","Payments","Gross","Fees","Refunds","Net"], r.players.map((p) => [p.org,p.team,p.player,p.payments,m(p.gross),m(p.fees),m(p.refunds),m(p.net)]))}</h2>` + table(
+    [["Org"],["Team"],["Player"],["Payments",1],["Gross",1],["Fees",1],["Refunds",1],["Net",1]],
+    r.players.map((p) => `<tr><td>${esc(p.org)}</td><td>${esc(p.team)}</td><td>${esc(p.player)}</td><td class="n">${p.payments}</td><td class="n">${m(p.gross)}</td><td class="n">${m(p.fees)}</td><td class="n">${m(p.refunds)}</td><td class="n">${m(p.net)}</td></tr>`), [trow(["All", "", "", { cnt: tsum(r.players, (p) => p.payments) }, tsum(r.players, (p) => p.gross), tsum(r.players, (p) => p.fees), tsum(r.players, (p) => p.refunds), tsum(r.players, (p) => p.net)])], 10));
+
+  if (r.status && r.status.length) {
+    const subs = r.status, live = subs.filter((x) => !["Canceled", "Paused"].includes(x.status));
+    P(`<h2>Subscriptions (${subs.length}) ${dl("subscriptions.csv", ["Org","Team","Player","Payer","Status","Amount","Started","Next charge","Charges left","Ends","Last paid","Last amount","Subscription ID"], subs.map((x) => [x.org,x.team,x.player,x.payer,x.status,m(x.amount),x.started||"",x.next_charge||"",x.charges_left ?? "",x.ends||"",x.last_paid||"",x.last_amount ? m(x.last_amount) : "",x.id]))}</h2>` + table(
+      [["Org"],["Team"],["Player"],["Payer"],["Status"],["Amount",1],["Next charge"],["Charges left",1],["Ends"],["Last paid"],["Subscription"]],
+      subs.map((x) => `<tr><td>${esc(x.org)}</td><td>${esc(x.team)}</td><td>${esc(x.player)}</td><td>${esc(x.payer)}</td><td class="${x.status === "Past due" ? "bad" : ""}">${esc(x.status)}</td><td class="n">${m(x.amount)}</td><td>${esc(x.next_charge || "")}</td><td class="n">${x.charges_left ?? ""}</td><td>${esc(x.ends || "")}</td><td>${x.last_paid ? esc(x.last_paid) + (x.last_amount ? " (" + m(x.last_amount) + ")" : "") : ""}</td><td><a href="https://dashboard.stripe.com/subscriptions/${encodeURIComponent(x.id)}" target="_blank" rel="noopener" title="Open in Stripe">${esc(x.id)}</a></td></tr>`),
+      [trow(["Total billed each month", "", "", "", "", tsum(live, (x) => x.amount), "", "", "", "", ""])], 10)
+      + `<p class="note">Every subscription that isn't canceled. <b>Amount</b> is what the family is billed each month (after any discount). <b>Charges left</b> counts the next charge and every later one up to the end date; blank means no end date is set. The total covers subscriptions that are billing (not paused). ${tsum(live.filter((x) => x.charges_left !== null && x.charges_left !== undefined), (x) => x.amount * x.charges_left) ? `Still to be billed on subscriptions with an end date: <b>${m(tsum(live.filter((x) => x.charges_left !== null && x.charges_left !== undefined), (x) => x.amount * x.charges_left))}</b> (gross, before Stripe fees). ` : ""}Click an ID to open it in Stripe.</p>`);
+  }
+
+  cur = 'tx'; P(`<h2>Money in: Stripe payments (${r.transactions.length}) ${dl("transactions.csv", ["Date","Org","Team","Player","Payer","Gross","Fee","Refunded","Charge ID"], r.transactions.map((c) => [c.date,c.org,c.team,c.player,c.payer,m(c.gross),m(c.fee),m(c.refunded),c.id + (c.pending ? " (pending)" : "")]))}</h2>` + table(
+    [["Date"],["Org"],["Team"],["Player"],["Payer"],["Gross",1],["Fee",1],["Refunded",1],["Charge ID"]],
+    r.transactions.map((c) => { const bad = c.org === "unassigned" || c.team === "UNASSIGNED" || c.player === "UNASSIGNED" ? "bad" : ""; return `<tr><td>${esc(c.date)}</td><td class="${bad}">${esc(c.org)}</td><td class="${bad}">${esc(c.team)}</td><td class="${bad}">${esc(c.player)}</td><td>${esc(c.payer)}</td><td class="n">${m(c.gross)}</td><td class="n">${m(c.fee)}</td><td class="n">${c.refunded ? m(c.refunded) : ""}</td><td>${String(c.id).startsWith("ch_") || String(c.id).startsWith("py_") ? `<a href="https://dashboard.stripe.com/payments/${encodeURIComponent(c.id)}" target="_blank" rel="noopener" title="Open in Stripe to edit its tags">${esc(c.id)}</a>` : esc(c.id)}${c.pending ? ' <span class="muted">(pending)</span>' : ""}</td></tr>`; }), [trow(["Total", "", "", "", "", tsum(r.transactions, (c) => c.gross), tsum(r.transactions, (c) => c.fee), tsum(r.transactions, (c) => c.refunded), ""])], 10)
+    + `<p class="note">Successful and pending (bank payments still clearing) payments in the selected dates, newest first. Red means missing tags: click the charge ID to open it in Stripe and edit its tags. Failed payments are not listed.</p>`);
+  if (r.bank_loaded) {
+    const ex = [...(r.expenses || [])].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0)), hasBy = ex.some((e) => e.by);
+    const unas = (e) => String(e.org).toLowerCase() === "unassigned";
+    P(`<h2>Money out: what was spent (${ex.length}) ${r.sheet_url ? `<a href="${esc(r.sheet_url)}" target="_blank" rel="noopener">Edit in the sheet</a> ` : ""}${dl("spending.csv", ["Date paid","Practice date","Org","Category","Paid to",...(hasBy ? ["Paid by"] : []),"Amount","Bank description"], ex.map((e) => [e.date,e.use_date||"",e.org,e.category,e.payee,...(hasBy ? [e.by] : []),m(e.amount),e.desc]))}</h2>` + table(
+      [["Date paid"],["Practice date"],["Org"],["Category"],["Paid to"],...(hasBy ? [["Paid by"]] : []),["Amount",1]],
+      ex.map((e) => `<tr><td>${esc(e.date)}</td><td>${esc(e.use_date || "")}</td><td class="${unas(e) ? "bad" : ""}">${esc(e.org)}</td><td class="${e.category === "Uncategorized" ? "bad" : ""}">${esc(e.category)}</td><td title="${esc(e.desc)}">${esc(e.payee)}</td>${hasBy ? `<td>${esc(e.by)}</td>` : ""}<td class="n">${m(e.amount)}</td></tr>`),
+      [trow(["Total", "", "", "", ...(hasBy ? [""] : []), tsum(ex, (e) => e.amount)])], 10)
+      + `<p class="note">Every bank withdrawal in the selected dates, newest first, from the Expenses tab. The <b>Practice date</b> column shows the day of the practice for field rentals paid later, from the Use date on the Tahoma Split tab. Hover a name to see the full bank description. Red means no org or category yet: type an org or category on that row of the Expenses tab (or add a rule on the Rules tab) using the <b>Edit in the sheet</b> link. Shared costs appear once for each org's share.${hasBy ? "" : " The bank doesn't say who made a purchase; add a column called <b>Paid by</b> to the Expenses tab and it will show here."} Transfers that the rules ignore, like Stripe payouts, are left out.</p>`);
+  }
+
+  if (r.bank_loaded) {
+    cur = 'money'; P(`<h2>Budget vs actual ${dl("budget_vs_actual.csv", ["Org","Category","Season budget","Spent","Left","% used"], r.budget.map((b) => [b.org,b.category,b.budget ?? "",m(b.actual),b.left === null ? "" : m(b.left),b.pct === null ? "" : b.pct.toFixed(0)]))}</h2>` + budgetTable(r, false)
+      + `<p class="note">What was budgeted against what has been spent in the dates you picked. To try different budget amounts, use the <a href="#forecast">Forecast</a> tab. Budgets come from your <b>Budgets</b> sheet tab, then the built-ins.</p>`);
+    cur = 'money'; P(`<h2>Expenses by org and category ${dl("expenses.csv", ["Date paid","Practice date","Description","Amount","Org","Team","Category"], r.expenses.map((e) => [e.date,e.use_date||"",e.desc,m(e.amount),e.org,e.team,e.category]))}</h2>` + table(
+      [["Org"],["Category"],["Total",1]],
+      r.exp_summary.map((e) => `<tr><td>${esc(e.org)}</td><td>${esc(e.category)}</td><td class="n">${m(e.total)}</td></tr>`),
+        [...[...new Set(r.exp_summary.map((e) => e.org))].map((o) => trow([esc(o) + " total", "", tsum(r.exp_summary.filter((e) => e.org === o), (e) => e.total)])), trow(["All orgs", "", tsum(r.exp_summary, (e) => e.total)])])
+      + `<p class="note">Ignored as transfers: ${r.ignored} row(s). Other deposits (not Stripe): ${r.deposits} row(s), $${m(r.deposit_total)}.</p>`);
+    if (r.untagged.length) {
+      cur = 'money'; P(`<h2>Expenses needing a rule (${r.untagged.length})</h2>` + table(
+        [["Date"],["Description"],["Amount",1]],
+        r.untagged.map((e) => `<tr><td>${esc(e.date)}</td><td>${esc(e.desc)}</td><td class="n">${m(e.amount)}</td></tr>`), [trow(["Total", "", tsum(r.untagged, (e) => e.amount)])])
+        + `<p class="note">Add a row on the Rules tab of the sheet: a keyword from the description plus org, team and category.</p>`);
+    }
+  }
+
+  // ---- Forecast: what is still scheduled to come in, against what the budgets allow to go out ----
+  {
+    const orgs = [...new Set(r.ledger.map((x) => x.org))].sort();
+    const monthOf = (d) => (d ? d.slice(0, 7) : "");
+    const thisMonth = (r.as_of || "").slice(0, 7);
+    const buckets = new Map(); // month label -> {org: amount}
+    const summary = [];
+    for (const org of orgs) {
+      const b = r.board.find((x) => x.org === org) || { gross: 0, fees: 0, refunds: 0, net_income: 0 };
+      const feeRate = b.gross > 0 ? b.fees / b.gross : 0;
+      let owed = 0;
+      for (const x of r.ledger.filter((y) => y.org === org)) {
+        for (const it of x.schedule || []) {
+          if (it.status === "Paid") continue;
+          const mo = it.due && monthOf(it.due) >= thisMonth ? monthOf(it.due) : "Overdue / past";
+          if (!buckets.has(mo)) buckets.set(mo, {});
+          buckets.get(mo)[org] = (buckets.get(mo)[org] || 0) + Number(it.amount);
+          owed += Number(it.amount);
+        }
+      }
+      const toCollect = owed * (1 - feeRate);
+      const bud = r.bank_loaded ? r.budget.filter((x) => x.org === org) : [];
+      const spent = bud.reduce((t, x) => t + x.actual, 0);
+      const isBuf = (x) => /contingency/i.test(x.category); // a cushion in the budget, not planned spending
+      const projExp = bud.reduce((t, x) => t + (isBuf(x) ? x.actual : Math.max(x.budget ?? 0, x.actual)), 0);
+      const buffer = bud.filter(isBuf).reduce((t, x) => t + Math.max(0, (x.budget ?? 0) - x.actual), 0);
+      summary.push({ org, buffer, collected: b.net_income, toCollect, season: b.net_income + toCollect, spent, projExp,
+        resultBudget: b.net_income + toCollect - projExp, resultNow: b.net_income + toCollect - spent, owed, feeRate });
+    }
+    const months = [...buckets.keys()].sort((a, c) => (a.startsWith("O") ? -1 : c.startsWith("O") ? 1 : a < c ? -1 : 1));
+    const colTot = (org) => months.reduce((t, k) => t + (buckets.get(k)[org] || 0), 0);
+    cur = "forecast";
+    P(projectionHtml(r));
+    P(`<h2>Season forecast</h2>` + (r.bank_loaded ? "" : `<div class="banner">No expenses are loaded, so the cost side of the forecast is empty.</div>`)
+      + table([["Org"], ["Collected", 1], ["Still to collect", 1], ["Season income", 1], ["Spent", 1], ["Budgeted spend", 1], ["Result (spent)", 1], ["Result (budget)", 1]],
+        summary.map((x) => `<tr><td>${esc(x.org)}</td><td class="n">${m(x.collected)}</td><td class="n">${m(x.toCollect)}</td><td class="n"><b>${m(x.season)}</b></td><td class="n">${m(x.spent)}</td><td class="n">${m(x.projExp)}</td><td class="n ${x.resultNow < 0 ? "bad" : ""}">${m(x.resultNow)}</td><td class="n ${x.resultBudget < 0 ? "bad" : ""}"><b>${m(x.resultBudget)}</b></td></tr>`), summary.length > 1 ? [trow(["All orgs", tsum(summary, (x) => x.collected), tsum(summary, (x) => x.toCollect), tsum(summary, (x) => x.season), tsum(summary, (x) => x.spent), tsum(summary, (x) => x.projExp), tsum(summary, (x) => x.resultNow), tsum(summary, (x) => x.resultBudget)])] : [])
+      + summary.filter((x) => x.buffer > 0).map((x) => `<p class="note">${esc(x.org)} has ${m(x.buffer)} of contingency buffer. The results above don't spend it, so it is extra cushion if costs run over.</p>`).join("")
+      + `<p class="note"><b>Collected</b> is net of Stripe fees so far. <b>Still to collect</b> is every unpaid installment on the player schedules (including late ones), reduced by the Stripe fee rate seen so far. Free players owe nothing. <b>Budgeted spend</b> is each category's budget (contingency lines are left out because they are padding, not planned spending), or what has already been spent if that is higher. <b>Result (spent)</b> uses what has actually been spent; <b>Result (budget)</b> assumes every budget is used. Both assume everyone pays what their plan says and no refunds.</p>`);
+    if (r.bank_loaded) {
+      P(whatIfPanel(r));
+      P(`<h2>Budget allocations</h2>` + budgetTable(r, true)
+        + `<p class="note">Type a different amount in any <b>Season budget</b> box to change that budget, or add spending line items in <b>What if I spend</b> below. Spent, Left and % used change, and so do the forecast and projection above. Nothing is <b>saved</b> and it resets when you reload. To change a budget itself, edit the <b>Budgets</b> tab of the sheet${r.sheet_url ? ` (<a href="${esc(r.sheet_url)}" target="_blank" rel="noopener">open the sheet</a>)` : ""}.${OV.size + ITEMS.length ? ` <a class="tog" id="budreset" href="#forecast">Clear ${OV.size + ITEMS.length} what-if change(s)</a>` : ""}</p>`);
+    }
+    // running total: what has been collected so far (gross, as in the Board summary) plus each month's expected payments
+    const got = Object.fromEntries(orgs.map((o) => [o, (r.board.find((x) => x.org === o) || { gross: 0 }).gross]));
+    const run = { ...got }, cum = new Map();
+    for (const k of months) { for (const o of orgs) run[o] += buckets.get(k)[o] || 0; cum.set(k, { ...run }); }
+    const cumTot = (c) => orgs.reduce((t, o) => t + c[o], 0), rowTot = (k) => orgs.reduce((t, o) => t + (buckets.get(k)[o] || 0), 0);
+    const multi = orgs.length > 1;
+    const heads = ["Month", ...orgs.map((o) => o + " expected"), "Total expected", ...(multi ? orgs.map((o) => o + " collected by then") : []), "Total collected by then"];
+    const line = (k) => [k, ...orgs.map((o) => m(buckets.get(k)[o] || 0)), m(rowTot(k)), ...(multi ? orgs.map((o) => m(cum.get(k)[o])) : []), m(cumTot(cum.get(k)))];
+    P(`<h2>Expected collections by month ${dl("expected_collections.csv", heads, [["Collected so far", ...orgs.map(() => ""), "", ...(multi ? orgs.map((o) => m(got[o])) : []), m(cumTot(got))], ...months.map(line)])}</h2>`
+      + table([["Month"], ...orgs.map((o) => [esc(o) + " expected", 1]), ["Total expected", 1], ...(multi ? orgs.map((o) => [esc(o) + " collected by then", 1]) : []), ["Total collected by then", 1]],
+        [`<tr class="tot"><td>Collected so far</td>${orgs.map(() => "<td></td>").join("")}<td></td>${multi ? orgs.map((o) => `<td class="n">${m(got[o])}</td>`).join("") : ""}<td class="n"><b>${m(cumTot(got))}</b></td></tr>`,
+          ...months.map((k) => `<tr><td>${esc(k)}</td>${orgs.map((o) => `<td class="n">${m(buckets.get(k)[o] || 0)}</td>`).join("")}<td class="n">${m(rowTot(k))}</td>${multi ? orgs.map((o) => `<td class="n">${m(cum.get(k)[o])}</td>`).join("") : ""}<td class="n"><b>${m(cumTot(cum.get(k)))}</b></td></tr>`)],
+        [trow(["Total", ...orgs.map((o) => colTot(o)), orgs.reduce((t, o) => t + colTot(o), 0), ...(multi ? orgs.map(() => "") : []), ""])])
+      + `<p class="note">Gross amounts, before Stripe fees. <b>Collected by then</b> is what has been collected so far (the Board summary's gross income, including pending bank payments) plus everything expected up to and including that month. "Overdue / past" is money that was already due and hasn't come in; it is added to the running total in its own row, as if it all came in now. Expected totals: ${orgs.map((o) => esc(o) + " " + m(colTot(o))).join(", ")}.</p>`);
+  }
+  const TABS = [["overview","Overview"],["players","Players"],["income","Income"],["tx","Transactions"],["money","Budget & expenses"],["forecast","Forecast"]];
+  $("#out").innerHTML = shared.join("") + `<nav id="tabs">` + TABS.map(([k, l]) => `<a href="#${k}" data-t="${k}">${l}</a>`).join("") + `</nav>`
+    + TABS.map(([k]) => `<section class="pane" id="p-${k}">${T[k].join("") || '<p class="note">Nothing to show for these dates.</p>'}</section>`).join("");
+  const show = () => { let h = (location.hash || "#overview").slice(1); if (!T[h]) h = "overview";
+    document.querySelectorAll(".pane").forEach((e) => { e.hidden = e.id !== "p-" + h; });
+    document.querySelectorAll("#tabs a").forEach((e) => e.classList.toggle("on", e.dataset.t === h)); };
+  window.onhashchange = show; show();
+  const filt = () => {
+    const q = ($("#lq").value || "").toLowerCase(), st = $("#ls").value, gt = $("#lt").value;
+    document.querySelectorAll(".lrow").forEach((row) => { row.style.display = row.dataset.n.includes(q) && (!st || row.dataset.s === st) && (!gt || row.dataset.g === gt) ? "" : "none"; });
+  };
+  makeSortable($("#out")); applyCaps();
+  $("#lq").addEventListener("input", filt); $("#ls").addEventListener("change", filt); $("#lt").addEventListener("change", filt);
+}
+
+async function run(ev) {
+  ev.preventDefault();
+  const btn = $("#go"); btn.disabled = true; btn.textContent = "Loading...";
+  $("#out").innerHTML = "";
+  try {
+    const q = new URLSearchParams({ start: $("#start").value, end: $("#end").value, org: $("#org").value });
+    let pass = ""; try { pass = sessionStorage.getItem("pp") || ""; } catch (e) {}
+    let res = await fetch("/api/report?" + q, { headers: { "x-passphrase": pass } });
+    if (res.status === 401) {
+      pass = prompt("Access passphrase:") || "";
+      res = await fetch("/api/report?" + q, { headers: { "x-passphrase": pass } });
+      if (res.ok) { try { sessionStorage.setItem("pp", pass); } catch (e) {} }
+    }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || res.statusText);
+    render(data);
+  } catch (e) {
+    $("#out").innerHTML = `<div class="err">${esc(e.message)}</div>`;
+  } finally { btn.disabled = false; btn.textContent = "Run reports"; }
+}
+$("#out").addEventListener("input", (e) => {
+  if (e.target.id !== "projDate" || !LAST || !/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)) return;
+  PROJ_DATE = e.target.value; render(LAST); location.hash = "#forecast";
+  const el = document.getElementById("projDate"); if (el) el.focus();
+});
+$("#out").addEventListener("change", (e) => {
+  const t = e.target; if (!t.classList || !t.classList.contains("bud") || !LAST) return;
+  const k = bkey(t.dataset.o, t.dataset.c), v = t.value.trim();
+  if (v === "" || Number.isNaN(Number(v))) OV.delete(k); else OV.set(k, Number(v));
+  render(LAST);
+});
+$("#out").addEventListener("change", (e) => {
+  if (e.target.id === "wiCat") $("#wiNewWrap").hidden = e.target.value !== "__new";
+});
+$("#out").addEventListener("click", (e) => {
+  if (e.target.classList && e.target.classList.contains("showmore")) { e.preventDefault(); const c = e.target.dataset.cid; if (EXPANDED.has(c)) EXPANDED.delete(c); else EXPANDED.add(c); applyCaps(); return; }
+  if (e.target.classList && e.target.classList.contains("rmItem")) { e.preventDefault(); ITEMS = ITEMS.filter((x) => String(x.id) !== e.target.dataset.id); render(LAST); location.hash = "#forecast"; return; }
+  if (e.target.id === "wiAdd") {
+    const amount = Math.round(Number($("#wiAmt").value) * 100) / 100, desc = $("#wiDesc").value.trim() || "What-if expense";
+    let org, category; const v = $("#wiCat").value;
+    if (v === "__new") { org = $("#wiNewOrg").value; category = $("#wiNewCat").value.trim(); } else { const k = (LAST_CATS || [])[Number(v)] || ""; [org, category] = k.split("\u0000"); }
+    if (!(amount > 0) || !category) { $("#wiAmt").focus(); return; }
+    ITEMS.push({ id: ++ITEM_ID, org, category, desc, amount }); render(LAST); location.hash = "#forecast"; return;
+  }
+  if (e.target.id === "budreset" || e.target.id === "budreset2") { e.preventDefault(); OV.clear(); ITEMS = []; render(LAST); }
+});
+$("#f").addEventListener("submit", run);
+$("#f").requestSubmit();
+</script>
+</main></body></html>

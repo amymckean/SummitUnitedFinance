@@ -1,0 +1,9 @@
+{
+  "name": "org-finances",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node test.mjs",
+    "demo": "DEMO=1 netlify dev"
+  }
+}
